@@ -1,0 +1,154 @@
+{
+  "project_name": "Al-Halwaji Sweets Bahrain",
+  "app_type": "hybrid_fullstack",
+  "theme_strategy": {
+    "mode": "light",
+    "rationale": "A light, warm, earthy theme reflects the organic nature of traditional Bahraini sweets, flour, sugar, and golden syrup. It creates an approachable yet highly luxurious 'heritage' aesthetic when paired with deep brown and gold accents.",
+    "global_css_additions": [
+      "html { dir: rtl; text-align: right; }",
+      "body { background-color: #FAF8F5; color: #1A1814; font-family: 'Tajawal', sans-serif; }"
+    ]
+  },
+  "typography": {
+    "fonts": [
+      {
+        "role": "headings",
+        "family": "Amiri",
+        "type": "serif",
+        "weights": ["400", "700"],
+        "rationale": "Amiri is a classic Arabic serif that exudes heritage, tradition, and luxury. Perfect for the kinetic hero and manifesto chapters."
+      },
+      {
+        "role": "body",
+        "family": "Tajawal",
+        "type": "sans-serif",
+        "weights": ["300", "400", "500", "700"],
+        "rationale": "Tajawal is a modern, clean Arabic sans-serif that ensures high legibility for product descriptions and dashboard interfaces while maintaining a soft geometry."
+      }
+    ],
+    "scales": {
+      "h1": "text-5xl sm:text-6xl tracking-tight leading-tight font-bold font-serif",
+      "h2": "text-3xl sm:text-4xl tracking-tight leading-snug font-bold font-serif",
+      "h3": "text-2xl sm:text-3xl leading-snug font-serif",
+      "body": "text-base sm:text-lg leading-relaxed font-sans",
+      "labels": "text-sm tracking-wide font-sans text-muted-foreground"
+    },
+    "rules": [
+      "Do NOT use Inter for Arabic. Only use Amiri and Tajawal.",
+      "Headlines MUST be tight (leading-tight) and rely on the Serif font.",
+      "Never center text by default; align right (RTL standard) unless visually necessary for a specific asymmetrical layout.",
+      "Use typography masking (framer-motion) for the hero title reveal."
+    ]
+  },
+  "colors": {
+    "archetype": "ORGANIC & EARTHY + LUXURY",
+    "palette": {
+      "background": "#FAF8F5",
+      "foreground": "#1A1814",
+      "primary": "#C89B3C",
+      "primary_foreground": "#FFFFFF",
+      "secondary": "#8B5A2B",
+      "secondary_foreground": "#FFFFFF",
+      "accent": "#F0EAE1",
+      "accent_foreground": "#3E2723",
+      "muted": "#EBE5DB",
+      "muted_foreground": "#795548",
+      "border": "#D7CCC8"
+    },
+    "admin_dashboard_overrides": {
+      "background": "#FFFFFF",
+      "card_background": "#F9F9F9",
+      "border": "#EEEEEE"
+    },
+    "rules": [
+      "Never use generic SaaS blue. Use the provided warm golds, bronzes, and deep earth tones.",
+      "Do NOT use pure #000000 or #FFFFFF for large backgrounds; always tint slightly warm.",
+      "Ensure CTA buttons (Primary Gold) have enough contrast. Use APCA guidelines.",
+      "Avoid large gradients. Use subtle grain/noise overlays over solid colors for texture."
+    ]
+  },
+  "layouts": {
+    "marketing": {
+      "spacing": "Generous. Use p-8, p-12, p-24.",
+      "grid": "Bento 'Tetris' grid (grid-cols-1 md:grid-cols-12) for the product menu. Wide gaps (gap-8, gap-12). Leave empty cells for tension.",
+      "hero": "Full height (min-h-screen). Kinetic typography reveal. Large imagery with a max bg-black/30 overlay if text sits on top.",
+      "manifesto": "Numbered chapters. Asymmetrical placement of text vs. imagery. Use clipping paths or rounded-t-full (arch shapes) for images to mimic Bahraini architecture.",
+      "marquee": "Slow editorial ribbon. Pale background (accent) with dark text (primary). Font: Amiri. Gap: gap-24."
+    },
+    "ecommerce": {
+      "product_cards": "Cardless design. Flat rectangular images with soft shadow on hover, crisp Amiri titles, Tajawal descriptions.",
+      "cart": "Shadcn Sheet (sliding from left due to RTL). Elegant, minimal line-item view.",
+      "checkout": "Clean Shadcn Form. Fields: Name, Phone, Address, Notes. Single CTA: 'تأكيد الطلب (الدفع عند الاستلام)'."
+    },
+    "admin": {
+      "spacing": "Tight (gap-4, p-4).",
+      "grid": "High Density (grid-cols-1 md:grid-cols-4).",
+      "style": "Flat solid surfaces, 1px subtle borders. No glassmorphism. Focus on tabular data clarity."
+    }
+  },
+  "motion": {
+    "libraries": ["framer-motion", "lenis"],
+    "rules": [
+      "Lenis: MANDATORY for smooth momentum scrolling on the marketing site.",
+      "Hero: Line-by-line staggered text reveal using framer-motion (masking).",
+      "Scroll: Elements fade in and translate slightly upward (y: 20 -> 0) as they enter the viewport.",
+      "Hover: Images scale slightly (1.05) inside a hidden-overflow container. Buttons have a subtle background color shift.",
+      "Avoid 'bouncy' animations. Use easeOutCubic for a luxurious, weighty feel."
+    ]
+  },
+  "components": {
+    "ui_library": "shadcn/ui",
+    "required": ["sheet", "dialog", "form", "input", "textarea", "table", "button", "badge", "scroll-area"],
+    "customization_rules": [
+      "Strip standard Shadcn 'Vercel' look (e.g., strong focus rings). Replace with warm gold rings (focus:ring-primary).",
+      "All components MUST support RTL. Wrap the app in Radix DirectionProvider with dir='rtl'.",
+      "Remove card borders for marketing product displays; rely on image and typography hierarchy.",
+      "Admin tables should have extremely subtle borders (border-border/40)."
+    ]
+  },
+  "media": {
+    "image_urls": {
+      "hero": {
+        "url": "https://images.unsplash.com/photo-1705663106388-6c1c51ff5a8d?crop=entropy&cs=srgb&fm=jpg&ixid=M3w3NTY2NzR8MHwxfHNlYXJjaHwxfHxiYWtsYXZhfGVufDB8fHx8MTc4Njc5MzI0OHww&ixlib=rb-4.1.0&q=85",
+        "description": "Syrup pouring over stacked baklava. High-end, appetizing."
+      },
+      "manifesto_architecture": {
+        "url": "https://images.unsplash.com/photo-1674251853978-bd93ba6d320c?crop=entropy&cs=srgb&fm=jpg&ixid=M3w4NjY2NjV8MHwxfHNlYXJjaHwyfHxiYWhyYWluJTIwdHJhZGl0aW9uYWwlMjBhcmNoaXRlY3R1cmV8ZW58MHx8fHwxNzg2NzkzMjQzfDA&ixlib=rb-4.1.0&q=85",
+        "description": "Traditional Bahraini wooden door, representing heritage."
+      },
+      "manifesto_craft": {
+        "url": "https://images.unsplash.com/photo-1701978300223-6fe449f3bc20?crop=entropy&cs=srgb&fm=jpg&ixid=M3w4NjY2NzF8MHwxfHNlYXJjaHwyfHxjaGVmJTIwY29va2luZyUyMGFyYWJpYyUyMHN3ZWV0c3xlbnwwfHx8fDE3ODY3OTMyNDN8MA&ixlib=rb-4.1.0&q=85",
+        "description": "Chef meticulously crafting sweets, showing dedication."
+      },
+      "products": [
+        {
+          "url": "https://images.unsplash.com/photo-1595353611215-3ea27a66f0b6?crop=entropy&cs=srgb&fm=jpg&ixid=M3w3NTY2NzF8MHwxfHNlYXJjaHwzfHxhcmFiaWMlMjBzd2VldHN8ZW58MHx8fHwxNzg2NzkzMjQ4fDA&ixlib=rb-4.1.0&q=85",
+          "description": "Luxurious sweet display under a glass cloche."
+        },
+        {
+          "url": "https://images.unsplash.com/photo-1778447830669-8fe9626ed738?crop=entropy&cs=srgb&fm=jpg&ixid=M3w3NTY2NzF8MHwxfHNlYXJjaHw0fHxhcmFiaWMlMjBzd2VldHN8ZW58MHx8fHwxNzg2NzkzMjQ4fDA&ixlib=rb-4.1.0&q=85",
+          "description": "Close up of an arabic pastry with pistachios."
+        },
+        {
+          "url": "https://images.unsplash.com/photo-1676014959543-81df1079b423?crop=entropy&cs=srgb&fm=jpg&ixid=M3w3NTY2NzF8MHwxfHNlYXJjaHw0fHxiYWtsYXZhfGVufDB8fHx8MTc4Njc5MzI0OHww&ixlib=rb-4.1.0&q=85",
+          "description": "A tray of layered traditional sweets."
+        }
+      ]
+    },
+    "treatment": "Images should have warm color grading. Use CSS sepia(10%) or warm overlays slightly if images feel too cool. Apply rounded corners selectively (e.g., rounded-tr-[4rem] rounded-bl-[4rem]) to mimic Islamic arches."
+  },
+  "universal_guidelines_for_main_agent": [
+    "You MUST use semantic HTML tags.",
+    "Do NOT use HTML-based components for advanced user interactions (dropdown, calendar, toast). Use Shadcn.",
+    "You MUST NOT apply universal transition (e.g., transition: all). Add transitions for specific properties.",
+    "You MUST NOT center align the app container (.App { text-align: center; }).",
+    "Never use generic AI emojis for icons.",
+    "Always apply data-testid to interactive elements (e.g., data-testid='add-to-cart-button').",
+    "Ensure RTL is implemented correctly at the root level (html dir='rtl'). All margins/padding must use logical properties (e.g., ms-4 instead of ml-4, me-4 instead of mr-4) OR standard tailwind RTL support (Tailwind automatically handles ml/mr in RTL mode if configured, but stick to standard layout mirroring)."
+  ],
+  "accessibility": {
+    "focus_states": "High contrast ring (ring-primary ring-offset-background).",
+    "color_contrast": "Ensure white text on gold buttons meets 3:1 for large text, or use dark brown text on gold if it fails.",
+    "motion": "Respect prefers-reduced-motion media queries."
+  }
+}
