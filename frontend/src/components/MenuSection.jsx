@@ -1,8 +1,8 @@
-import { useEffect, useMemo, useState } from "react";
+import { useMemo, useState } from "react";
 import { motion } from "framer-motion";
 import { Plus } from "lucide-react";
 import { toast } from "sonner";
-import api, { formatPrice } from "@/lib/api";
+import { formatPrice } from "@/lib/api";
 import { fallbackProducts } from "@/lib/fallbackProducts";
 import { useCart } from "@/context/CartContext";
 
@@ -80,14 +80,6 @@ export default function MenuSection() {
   const [products, setProducts] = useState(fallbackProducts);
   const [category, setCategory] = useState("الكل");
 
-  useEffect(() => {
-    api.get("/products")
-      .then((r) => {
-        if (Array.isArray(r.data) && r.data.length > 0) setProducts(r.data);
-      })
-      .catch(() => {});
-  }, []);
-
   const categories = ["الكل", ...new Set(products.map((product) => product.category).filter(Boolean))];
   const visible = useMemo(() => (category === "الكل" ? products : products.filter((p) => p.category === category)), [products, category]);
 
@@ -105,7 +97,7 @@ export default function MenuSection() {
             <p className="text-sm text-muted-foreground mb-4">المنيو</p>
             <h2 className="font-serif font-bold text-3xl sm:text-4xl lg:text-5xl leading-snug">من زارنا نورنا</h2>
           </div>
-          <p className="text-muted-foreground text-sm sm:text-base leading-relaxed">كل الأسعار بالدينار البحريني — الدفع عند الاستلام أو التوصيل.</p>
+          <p className="text-muted-foreground text-sm sm:text-base leading-relaxed">الأسعار بالدينار البحريني، ويؤكد المحل السعر والتوفر عبر واتساب.</p>
         </motion.div>
 
         <div className="flex flex-wrap gap-3 mb-14" data-testid="category-filters">
