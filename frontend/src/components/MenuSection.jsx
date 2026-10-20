@@ -3,6 +3,7 @@ import { motion } from "framer-motion";
 import { Plus } from "lucide-react";
 import { toast } from "sonner";
 import api, { formatPrice } from "@/lib/api";
+import { fallbackProducts } from "@/lib/fallbackProducts";
 import { useCart } from "@/context/CartContext";
 
 const FALLBACK_IMG = "https://images.unsplash.com/photo-1595353611215-3ea27a66f0b6?crop=entropy&cs=srgb&fm=jpg&ixid=M3w3NTY2NzF8MHwxfHNlYXJjaHwzfHxhcmFiaWMlMjBzd2VldHN8ZW58MHx8fHwxNzg2NzkzMjQ4fDA&ixlib=rb-4.1.0&q=70&w=900&auto=format";
@@ -76,18 +77,18 @@ function ProductCard({ p, index }) {
 }
 
 export default function MenuSection() {
-  const [products, setProducts] = useState([]);
-  const [loading, setLoading] = useState(true);
+  const [products, setProducts] = useState(fallbackProducts);
   const [category, setCategory] = useState("الكل");
 
   useEffect(() => {
     api.get("/products")
-      .then((r) => setProducts(r.data))
-      .catch(() => toast.error("تعذّر تحميل المنيو"))
-      .finally(() => setLoading(false));
+      .then((r) => {
+        if (Array.isArray(r.data) && r.data.length > 0) setProducts(r.data);
+      })
+      .catch(() => {});
   }, []);
 
-  const categories = ["الكل", "بقلاوة", "كليجة (زنجباري)", "سمبوسة", "معجنات", "مشروبات", "بارسلات"];
+  const categories = ["الكل", ...new Set(products.map((product) => product.category).filter(Boolean))];
   const visible = useMemo(() => (category === "الكل" ? products : products.filter((p) => p.category === category)), [products, category]);
 
   return (
@@ -122,23 +123,11 @@ export default function MenuSection() {
           ))}
         </div>
 
-        {loading ? (
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
-            {[...Array(6)].map((_, i) => (
-              <div key={i} className="animate-pulse">
-                <div className="aspect-[4/3] bg-muted rounded-2xl" />
-                <div className="h-5 bg-muted rounded mt-4 w-2/3" />
-                <div className="h-4 bg-muted rounded mt-2 w-1/2" />
-              </div>
-            ))}
-          </div>
-        ) : (
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-x-8 gap-y-14" data-testid="products-grid">
-            {visible.map((p, i) => (
-              <ProductCard key={p.id} p={p} index={i} />
-            ))}
-          </div>
-        )}
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-x-8 gap-y-14" data-testid="products-grid">
+          {visible.map((p, i) => (
+            <ProductCard key={p.id} p={p} index={i} />
+          ))}
+        </div>
       </div>
     </section>
   );

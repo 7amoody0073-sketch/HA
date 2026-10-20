@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
-import { Bike, CheckCircle2, Store } from "lucide-react";
+import { Bike, CheckCircle2, MessageCircle, Store } from "lucide-react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
@@ -11,6 +11,7 @@ import api, { formatApiError, formatPrice } from "@/lib/api";
 import { useCart } from "@/context/CartContext";
 
 const EMPTY = { customer_name: "", phone: "", address: "", order_date: "", notes: "" };
+const ORDER_WHATSAPP = "97339047775";
 
 export default function CheckoutDialog({ open, onOpenChange }) {
   const { items, total, clear } = useCart();
@@ -22,7 +23,7 @@ export default function CheckoutDialog({ open, onOpenChange }) {
   const [order, setOrder] = useState(null);
 
   useEffect(() => {
-    api.get("/delivery-areas").then((r) => setAreas(r.data)).catch(() => {});
+    api.get("/delivery-areas").then((r) => setAreas(r.data)).catch(() => setAreas(false));
   }, []);
 
   const fee =
@@ -63,7 +64,29 @@ export default function CheckoutDialog({ open, onOpenChange }) {
       } catch { /* ignore */ }
       clear();
     } catch (err) {
-      toast.error(formatApiError(err, "تعذّر إرسال الطلب، حاول مرة أخرى"));
+      const orderLines = items.map((item) =>
+        `- ${item.product.name}${item.optionName ? ` (${item.optionName})` : ""} × ${item.quantity}: ${formatPrice(item.price * item.quantity)}`
+      );
+      const message = [
+        "السلام عليكم، أود تأكيد هذا الطلب:",
+        `الاسم: ${form.customer_name}`,
+        `الهاتف: ${form.phone}`,
+        `نوع الطلب: ${fulfillment === "pickup" ? "استلام من المحل" : "توصيل"}`,
+        ...(fulfillment === "delivery" ? [`المنطقة: ${area}`, `العنوان: ${form.address}`] : []),
+        ...(form.order_date ? [`التاريخ المطلوب: ${form.order_date}`] : []),
+        "",
+        ...orderLines,
+        `قيمة الأصناف: ${formatPrice(total)}`,
+        ...(fulfillment === "delivery" ? ["رسوم التوصيل: يرجى التأكيد"] : []),
+        ...(form.notes ? [`ملاحظات: ${form.notes}`] : []),
+      ].join("\n");
+      setOrder({
+        viaWhatsapp: true,
+        total,
+        fulfillment,
+        whatsappUrl: `https://wa.me/${ORDER_WHATSAPP}?text=${encodeURIComponent(message)}`,
+      });
+      toast.info("لم يتصل الموقع بالخادم؛ أرسل الطلب عبر واتساب لتأكيده");
     } finally {
       setSubmitting(false);
     }
@@ -72,7 +95,38 @@ export default function CheckoutDialog({ open, onOpenChange }) {
   return (
     <Dialog open={open} onOpenChange={close}>
       <DialogContent className="sm:max-w-md max-h-[90vh] overflow-y-auto" data-testid="checkout-dialog">
-        {order ? (
+        {order ? order.viaWhatsapp ? (
+          <div className="py-8 text-center" data-testid="order-whatsapp-fallback">
+            <MessageCircle className="w-16 h-16 text-primary mx-auto mb-4" />
+            <DialogHeader>
+              <DialogTitle className="font-serif text-3xl font-bold text-center">أرسل طلبك عبر واتساب</DialogTitle>
+            </DialogHeader>
+            <p className="mt-4 text-muted-foreground text-sm leading-relaxed">
+              تعذّر الاتصال بنظام الطلبات. طلبك غير محفوظ حتى ترسله إلى المحل عبر واتساب.
+              <br />
+              قيمة الأصناف: <span className="font-bold text-foreground">{formatPrice(order.total)}</span>
+              {order.fulfillment === "delivery" && <><br />سيتم تأكيد رسوم التوصيل عبر واتساب.</>}
+            </p>
+            <div className="mt-8 flex flex-wrap items-center justify-center gap-3">
+              <a
+                href={order.whatsappUrl}
+                target="_blank"
+                rel="noreferrer"
+                onClick={clear}
+                data-testid="order-whatsapp-send"
+                className="rounded-full bg-primary px-8 py-3 font-bold text-primary-foreground transition-colors duration-300 hover:bg-secondary hover:text-secondary-foreground"
+              >
+                إرسال الطلب عبر واتساب
+              </a>
+              <button
+                onClick={() => close(false)}
+                className="rounded-full bg-foreground text-background px-8 py-3 font-bold text-background transition-colors duration-300 hover:bg-primary hover:text-primary-foreground"
+              >
+                رجوع
+              </button>
+            </div>
+          </div>
+        ) : (
           <div className="py-8 text-center" data-testid="order-success">
             <CheckCircle2 className="w-16 h-16 text-primary mx-auto mb-4" />
             <DialogHeader>
@@ -146,30 +200,33 @@ export default function CheckoutDialog({ open, onOpenChange }) {
               {fulfillment === "delivery" && (
                 <>
                   <div className="space-y-1.5">
-                    <Label>منطقة التوصيل</Label>
-                    <Select value={area} onValueChange={setArea} required>
-                      <SelectTrigger data-testid="checkout-area-select">
-                        <SelectValue placeholder="اختر منطقتك" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        {areas && (
-                          <>
-                            <SelectGroup>
-                              <SelectLabel>مناطق قريبة — توصيل {formatPrice(areas.near.fee)}</SelectLabel>
-                              {areas.near.areas.map((a) => (
-                                <SelectItem key={a} value={a}>{a}</SelectItem>
-                              ))}
-                            </SelectGroup>
-                            <SelectGroup>
-                              <SelectLabel>مناطق بعيدة — توصيل {formatPrice(areas.far.fee)}</SelectLabel>
-                              {areas.far.areas.map((a) => (
-                                <SelectItem key={a} value={a}>{a}</SelectItem>
-                              ))}
-                            </SelectGroup>
-                          </>
-                        )}
-                      </SelectContent>
-                    </Select>
+                    <Label htmlFor="co-area">منطقة التوصيل</Label>
+                    {areas === false ? (
+                      <>
+                        <Input id="co-area" required value={area} onChange={(e) => setArea(e.target.value)} placeholder="اكتب منطقتك" data-testid="checkout-area-input" />
+                        <p className="text-xs text-muted-foreground">سيتم تأكيد توفر التوصيل والرسوم عبر واتساب.</p>
+                      </>
+                    ) : (
+                      <Select value={area} onValueChange={setArea} required>
+                        <SelectTrigger data-testid="checkout-area-select">
+                          <SelectValue placeholder="اختر منطقتك" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectGroup>
+                            <SelectLabel>مناطق قريبة — توصيل {formatPrice(areas?.near?.fee || 0)}</SelectLabel>
+                            {(areas?.near?.areas || []).map((a) => (
+                              <SelectItem key={a} value={a}>{a}</SelectItem>
+                            ))}
+                          </SelectGroup>
+                          <SelectGroup>
+                            <SelectLabel>مناطق بعيدة — توصيل {formatPrice(areas?.far?.fee || 0)}</SelectLabel>
+                            {(areas?.far?.areas || []).map((a) => (
+                              <SelectItem key={a} value={a}>{a}</SelectItem>
+                            ))}
+                          </SelectGroup>
+                        </SelectContent>
+                      </Select>
+                    )}
                   </div>
                   <div className="space-y-1.5">
                     <Label htmlFor="co-address">عنوان التوصيل</Label>
@@ -195,7 +252,7 @@ export default function CheckoutDialog({ open, onOpenChange }) {
                 </div>
                 <div className="flex items-center justify-between text-sm">
                   <span className="text-muted-foreground">رسوم التوصيل</span>
-                  <span data-testid="checkout-delivery-fee">{fulfillment === "pickup" ? "مجاناً" : fee > 0 ? formatPrice(fee) : "حسب المنطقة"}</span>
+                  <span data-testid="checkout-delivery-fee">{fulfillment === "pickup" ? "مجاناً" : areas === false ? "يؤكد عبر واتساب" : fee > 0 ? formatPrice(fee) : "حسب المنطقة"}</span>
                 </div>
                 <div className="flex items-center justify-between">
                   <span className="text-muted-foreground text-sm">الإجمالي الكلي</span>
@@ -209,7 +266,7 @@ export default function CheckoutDialog({ open, onOpenChange }) {
                 data-testid="checkout-submit-button"
                 className="w-full rounded-full bg-primary py-4 font-bold text-primary-foreground transition-colors duration-300 hover:bg-secondary hover:text-secondary-foreground disabled:opacity-50"
               >
-                {submitting ? "جارٍ الإرسال..." : fulfillment === "pickup" ? "تأكيد الطلب (الدفع عند الاستلام من المحل)" : "تأكيد الطلب (الدفع عند التوصيل)"}
+                {submitting ? "جارٍ الإرسال..." : areas === false ? "إرسال الطلب عبر واتساب للتأكيد" : fulfillment === "pickup" ? "تأكيد الطلب (الدفع عند الاستلام من المحل)" : "تأكيد الطلب (الدفع عند التوصيل)"}
               </button>
             </form>
           </>
