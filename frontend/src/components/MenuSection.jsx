@@ -1,8 +1,8 @@
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { motion } from "framer-motion";
 import { Plus } from "lucide-react";
 import { toast } from "sonner";
-import { formatPrice } from "@/lib/api";
+import api, { apiBaseUrl, formatPrice } from "@/lib/api";
 import { fallbackProducts } from "@/lib/fallbackProducts";
 import { useCart } from "@/context/CartContext";
 
@@ -79,6 +79,17 @@ function ProductCard({ p, index }) {
 export default function MenuSection() {
   const [products, setProducts] = useState(fallbackProducts);
   const [category, setCategory] = useState("الكل");
+
+  useEffect(() => {
+    if (!apiBaseUrl) return;
+    api.get("/products")
+      .then(({ data }) => {
+        if (Array.isArray(data)) setProducts(data);
+      })
+      .catch((error) => {
+        console.error("Could not load products from the ordering service; using the local menu.", error);
+      });
+  }, []);
 
   const categories = ["الكل", ...new Set(products.map((product) => product.category).filter(Boolean))];
   const visible = useMemo(() => (category === "الكل" ? products : products.filter((p) => p.category === category)), [products, category]);
