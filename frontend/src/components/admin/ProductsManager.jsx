@@ -20,6 +20,7 @@ export default function ProductsManager({ onChange }) {
   const [form, setForm] = useState(EMPTY);
   const [deleting, setDeleting] = useState(null);
   const [saving, setSaving] = useState(false);
+  const [uploading, setUploading] = useState(false);
 
   const load = async () => {
     try {
@@ -36,25 +37,52 @@ export default function ProductsManager({ onChange }) {
 
   const openNew = () => { setForm(EMPTY); setEditing("new"); };
   const openEdit = (p) => { setForm({ ...p }); setEditing(p.id); };
-  const [uploading, setUploading] = useState(false);
+
+  const compressImage = async (file) => {
+    const source = URL.createObjectURL(file);
+    try {
+      const image = new Image();
+      image.src = source;
+      await image.decode();
+      const scale = Math.min(1, 1200 / Math.max(image.naturalWidth, image.naturalHeight));
+      const canvas = document.createElement("canvas");
+      canvas.width = Math.max(1, Math.round(image.naturalWidth * scale));
+      canvas.height = Math.max(1, Math.round(image.naturalHeight * scale));
+      canvas.getContext("2d").drawImage(image, 0, 0, canvas.width, canvas.height);
+
+      for (const quality of [0.82, 0.72, 0.62, 0.52]) {
+        const blob = await new Promise((resolve) => canvas.toBlob(resolve, "image/jpeg", quality));
+        if (blob && blob.size <= 375 * 1024) {
+          return await new Promise((resolve, reject) => {
+            const reader = new FileReader();
+            reader.onload = () => resolve(reader.result);
+            reader.onerror = () => reject(reader.error || new Error("تعذّرت قراءة الصورة"));
+            reader.readAsDataURL(blob);
+          });
+        }
+      }
+      throw new Error("حجم الصورة كبير؛ اختر صورة أصغر");
+    } finally {
+      URL.revokeObjectURL(source);
+    }
+  };
 
   const uploadImage = async (e) => {
     const file = e.target.files?.[0];
     if (!file) return;
     setUploading(true);
     try {
-      const fd = new FormData();
-      fd.append("file", file);
-      const { data } = await api.post("/admin/upload", fd);
-      setForm((f) => ({ ...f, image: `${apiBaseUrl}${data.url}` }));
-      toast.success("تم رفع الصورة");
+      const dataUrl = await compressImage(file);
+      const { data } = await api.post("/admin/upload", { data_url: dataUrl });
+      setForm((current) => ({ ...current, image: `${apiBaseUrl}${data.url}` }));
+      toast.success("تم رفع الصورة وحفظها");
     } catch (err) {
-      toast.error(formatApiError(err, "فشل رفع الصورة"));
+      toast.error(formatApiError(err, err.message || "فشل رفع الصورة"));
     } finally {
       setUploading(false);
+      e.target.value = "";
     }
   };
-
   const addOption = () => setForm((f) => ({ ...f, options: [...(f.options || []), { name: "", price: "" }] }));
   const setOption = (idx, k, v) => setForm((f) => ({ ...f, options: (f.options || []).map((o, i) => (i === idx ? { ...o, [k]: v } : o)) }));
   const removeOption = (idx) => setForm((f) => ({ ...f, options: (f.options || []).filter((_, i) => i !== idx) }));
@@ -199,9 +227,10 @@ export default function ProductsManager({ onChange }) {
                   className={`flex items-center justify-center gap-2 border-2 border-dashed border-border rounded-xl px-4 py-4 text-sm font-bold cursor-pointer transition-colors duration-300 hover:border-primary hover:text-primary ${uploading ? "opacity-50 pointer-events-none" : ""}`}
                 >
                   <input type="file" accept="image/*" className="hidden" onChange={uploadImage} data-testid="product-image-file-input" />
-                  {uploading ? "جارٍ رفع الصورة..." : "ارفع صورة من جهازك"}
+                  {uploading ? "جارٍ ضغط الصورة ورفعها..." : "ارفع صورة من جهازك"}
                 </label>
                 <Input dir="ltr" className="text-left" value={form.image} onChange={(e) => setForm((f) => ({ ...f, image: e.target.value }))} placeholder="أو الصق رابط صورة https://..." data-testid="product-image-input" />
+                <p className="text-xs text-muted-foreground">تُضغط الصور تلقائياً وتُحفظ في قاعدة البيانات المجانية.</p>
               </div>
               <div className="space-y-2 col-span-2">
                 <Label>خيارات الحجم (اختياري) — مثل: صحن نصف كيلو / صحن كيلو</Label>
