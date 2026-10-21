@@ -85,4 +85,5 @@ memory/test_credentials.md
 memory/PRD.md
 
 # Mobile development
-android-sdk/cloudflare/node_modules/@cloudflare/workerd-windows-64/bin/workerd.exe
+android-sdk/
+cloudflare/node_modules/@cloudflare/workerd-windows-64/bin/workerd.exe
