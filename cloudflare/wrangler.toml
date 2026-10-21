@@ -1,0 +1,13 @@
+name = "halwaji-admin-api"
+main = "src/index.js"
+compatibility_date = "2026-10-21"
+account_id = "87dd7c8f4511d576c411fcbdf551c3e0"
+
+[[d1_databases]]
+binding = "DB"
+database_name = "halwaji-free-db"
+database_id = "5bc52b19-9fe1-4089-824b-7b320b750a36"
+migrations_dir = "migrations"
+
+[vars]
+ALLOWED_ORIGINS = "https://ha-nxn7.vercel.app"
