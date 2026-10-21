@@ -1,4 +1,6 @@
 import { Clock, MapPin, Phone } from "lucide-react";
+import { Link } from "react-router-dom";
+import { apiBaseUrl } from "@/lib/api";
 
 export default function Footer() {
   return (
@@ -40,7 +42,9 @@ export default function Footer() {
         <div className="space-y-4">
           <h4 className="font-serif font-bold text-xl text-white">اطلب أونلاين</h4>
           <p className="text-sm text-white/60 leading-relaxed">
-            تصفّح المنيو وأرسل طلبك مباشرة إلى المحل عبر واتساب. يتم تأكيد السعر والتوصيل قبل اعتماد الطلب.
+            {apiBaseUrl
+              ? "تصفّح المنيو وسجّل طلبك في الموقع، ثم أرسل تفاصيله للمحل عبر واتساب لتأكيده."
+              : "تصفّح المنيو وأرسل طلبك مباشرة إلى المحل عبر واتساب. يتم تأكيد السعر والتوصيل قبل اعتماد الطلب."}
           </p>
           <button
             onClick={() => document.querySelector("#menu")?.scrollIntoView({ behavior: "smooth" })}
@@ -51,8 +55,15 @@ export default function Footer() {
           </button>
         </div>
       </div>
-      <div className="border-t border-white/10 py-6 flex items-center justify-center gap-4 text-xs text-white/40">
+      <div className="border-t border-white/10 py-6 flex flex-col sm:flex-row items-center justify-center gap-4 text-xs text-white/40">
         <span>حلويات الحلواچي © {new Date().getFullYear()} — فرع جد علي</span>
+        <Link
+          to="/admin/login"
+          data-testid="footer-admin-link"
+          className="rounded-full border border-white/20 px-4 py-2 text-white/70 transition-colors hover:border-primary hover:text-primary"
+        >
+          دخول الإدارة
+        </Link>
       </div>
     </footer>
   );
