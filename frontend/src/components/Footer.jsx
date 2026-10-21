@@ -1,4 +1,4 @@
-import { Clock, MapPin, Phone } from "lucide-react";
+import { Clock, Instagram, MapPin, Phone } from "lucide-react";
 import { Link } from "react-router-dom";
 import { apiBaseUrl } from "@/lib/api";
 
@@ -9,6 +9,17 @@ export default function Footer() {
         <div>
           <img src="/logo.png" alt="الحلواچي" className="w-20 h-20 rounded-full ring-1 ring-primary/40 object-cover" />
           <p className="font-serif text-3xl font-bold text-white mt-4">الحلواچي</p>
+          <a
+            href="https://www.instagram.com/alhalwachi_sons/"
+            target="_blank"
+            rel="noreferrer"
+            data-testid="footer-instagram-link"
+            className="mt-3 inline-flex items-center gap-2 text-sm text-white/70 transition-colors hover:text-primary"
+            dir="ltr"
+          >
+            <Instagram className="w-4 h-4" />
+            @alhalwachi_sons
+          </a>
         </div>
         <div className="space-y-4">
           <h4 className="font-serif font-bold text-xl text-white">فروعنا</h4>
@@ -18,10 +29,18 @@ export default function Footer() {
               <MapPin className="w-4 h-4 text-primary shrink-0" />
               <span data-testid="footer-address">جد علي، مملكة البحرين — الشارع الرئيسي</span>
             </p>
-            <p className="flex items-center gap-3 text-sm mt-1.5" dir="ltr">
+            <a
+              href="https://wa.me/97339047775"
+              target="_blank"
+              rel="noreferrer"
+              aria-label="تواصل واتساب مع فرع جد علي"
+              data-testid="footer-whatsapp-jid-ali"
+              className="flex items-center gap-3 text-sm mt-1.5 transition-colors hover:text-primary"
+              dir="ltr"
+            >
               <Phone className="w-4 h-4 text-primary shrink-0" />
               <span data-testid="footer-phone" className="[direction:ltr]">+973 3904 7775</span>
-            </p>
+            </a>
           </div>
           <div>
             <p className="text-sm font-bold text-primary mb-1.5">فرع المنامة</p>
@@ -29,10 +48,18 @@ export default function Footer() {
               <MapPin className="w-4 h-4 text-primary shrink-0" />
               <span data-testid="footer-address-manama">المنامة، مملكة البحرين</span>
             </p>
-            <p className="flex items-center gap-3 text-sm mt-1.5" dir="ltr">
+            <a
+              href="https://wa.me/97339147775"
+              target="_blank"
+              rel="noreferrer"
+              aria-label="تواصل واتساب مع فرع المنامة"
+              data-testid="footer-whatsapp-manama"
+              className="flex items-center gap-3 text-sm mt-1.5 transition-colors hover:text-primary"
+              dir="ltr"
+            >
               <Phone className="w-4 h-4 text-primary shrink-0" />
               <span data-testid="footer-phone-manama" className="[direction:ltr]">+973 3914 7775</span>
-            </p>
+            </a>
           </div>
           <p className="flex items-center gap-3 text-sm">
             <Clock className="w-4 h-4 text-primary shrink-0" />
