@@ -1,6 +1,10 @@
 import axios from "axios";
 
-export const apiBaseUrl = process.env.REACT_APP_BACKEND_URL || "";
+const productionApiUrl = "https://halwaji-admin-api.7amoody0073.workers.dev";
+
+export const apiBaseUrl =
+  process.env.REACT_APP_BACKEND_URL ||
+  (process.env.NODE_ENV === "production" ? productionApiUrl : "");
 
 const api = axios.create({
   baseURL: `${apiBaseUrl}/api`,
